@@ -1,0 +1,12 @@
+{
+  "name": "auto-light-lab",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "สื่อการเรียนรู้วงจรไฟรถยนต์ภาษาไทย แบบ static และเก็บผลในเบราว์เซอร์",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node scripts/serve.mjs",
+    "test": "node --test tests/*.test.mjs"
+  }
+}

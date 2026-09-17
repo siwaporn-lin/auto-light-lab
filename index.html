@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#153c34">
+  <meta name="description" content="ห้องทดลองวงจรไฟรถยนต์ เรียนรู้ผ่านการลงมือทำ 5 ภารกิจ จับคู่สัญลักษณ์ ต่อวงจร และวิเคราะห์ปัญหา">
+  <title>Auto Light Lab — ห้องทดลองวงจรไฟรถยนต์</title>
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg">
+  <link rel="preload" href="./assets/NotoSansThai.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="stylesheet" href="./src/styles.css">
+  <script type="module" src="./src/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">ข้ามไปเนื้อหา</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#home" aria-label="Auto Light Lab หน้าหลัก"><span class="brand-mark" aria-hidden="true">ϟ</span><span>AUTO LIGHT <b>LAB<span class="brand-dot">.</span></b><small>เรียนรู้วงจร จุดประกายไอเดีย</small></span></a>
+      <nav aria-label="เมนูหลัก">
+        <a href="#home" data-nav="home">หน้าหลัก</a>
+        <a href="#learn" data-nav="learn">คลังความรู้</a>
+        <a href="#history" data-nav="history">ผลการเรียนรู้</a>
+      </nav>
+      <button class="help-button" data-action="help" aria-label="วิธีใช้งาน"><span aria-hidden="true">?</span><span class="desktop-label">วิธีใช้งาน</span></button>
+    </div>
+  </header>
+  <main id="main" tabindex="-1"></main>
+  <footer class="site-footer"><span class="footer-brand">AUTO LIGHT LAB<span class="brand-dot">.</span></span><span>สื่อการเรียนรู้ระบบไฟฟ้ารถยนต์ • เรียนรู้ผ่านการลงมือทำ</span><span class="local-note"><i></i> บันทึกผลในอุปกรณ์นี้</span></footer>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <dialog id="modal"><div id="modal-body"></div><button class="dialog-close" data-action="close-modal" aria-label="ปิดหน้าต่าง">×</button></dialog>
+  <noscript><div class="noscript">กรุณาเปิด JavaScript ในเบราว์เซอร์เพื่อใช้งานห้องทดลอง</div></noscript>
+</body>
+</html>
