@@ -1,6 +1,7 @@
 import { COMPONENTS, LEVELS, portPosition, normalizePair, validateCircuit, calculateScore } from './circuits.js';
 import { store } from './storage.js';
 import { wirePath } from './wire-routing.js';
+import { pushResult, fetchResults, testConnection, setSheetUrl, getSheetUrl, isConnected } from './google-sheets.js';
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const main = $('#main');
@@ -187,10 +188,12 @@ function test() {
   }
   if(!correct){game.wrong++;updateScore();feedback(`${message} (−10 คะแนน)`,false);return;}
   game.complete=true;pauseTimer();game.selected=null;
-  const persisted=store.saveResult({id:game.id,player:game.player,level:level.id,score:score(),seconds:seconds(),wrong:game.wrong,hints:game.hints,date:new Date().toISOString()});
+  const resultData={id:game.id,player:game.player,level:level.id,score:score(),seconds:seconds(),wrong:game.wrong,hints:game.hints,date:new Date().toISOString()};
+  const persisted=store.saveResult(resultData);
+  if(isConnected()){pushResult(resultData).then(r=>{if(r.ok)toast('บันทึกผลไป Google Sheets แล้ว');});}
   renderLab();
   feedback(level.type==='circuit'?'ต่อถูกต้อง! ปิดสวิตช์แล้ววงจรครบ หลอดไฟทำงานตามผัง':'ยอดเยี่ยม! ผ่านภารกิจนี้แล้ว กดดูผลภารกิจเพื่อเรียนรู้ต่อ',true);
-  $('#board-status').textContent=persisted?'ภารกิจสำเร็จ · บันทึกผลในอุปกรณ์นี้แล้ว':'ภารกิจสำเร็จ · เก็บผลชั่วคราวในหน้านี้';
+  $('#board-status').textContent=persisted?`ภารกิจสำเร็จ · บันทึกผล${isConnected()?'ไป Google Sheets และ':'ใน'}อุปกรณ์นี้แล้ว`:'ภารกิจสำเร็จ · เก็บผลชั่วคราวในหน้านี้';
   if(!persisted)toast('เบราว์เซอร์ไม่อนุญาตให้บันทึกถาวร ส่งออกผลก่อนปิดหน้าได้');
   if(level.type==='circuit'){
     $('#car-status').classList.add('is-on');$('#lamp-status').textContent='หลอดไฟทำงาน';
@@ -230,20 +233,37 @@ function showHelp() {
   modal(`<p class="eyebrow">SMALL STEPS, BRIGHT IDEAS</p><h2>ห้องทดลองนี้เล่นอย่างไร?</h2><ol><li>ใส่ชื่อเล่น แล้วเลือกหนึ่งใน 5 ภารกิจ</li><li><strong>จับคู่:</strong> ลากชื่อไปวางบนสัญลักษณ์ หรือแตะชื่อแล้วแตะช่อง สำหรับคีย์บอร์ดใช้ Tab และ Enter</li><li><strong>ต่อสาย:</strong> ลากระหว่างขั้ว หรือแตะต้นทางแล้วแตะปลายทาง ใช้รายชื่อขั้วช่วยต่อบนมือถือได้</li><li>กดตรวจคำตอบเมื่อพร้อม ลบสายผิดจากรายการ หรือกดย้อนกลับได้</li><li>ผ่านแล้วดูผลและเรียนต่อ คะแนนเริ่มที่ 100 ผิด −10 คำใบ้ −5 ไม่หักคะแนนตามเวลา</li></ol><p>เวลาเรียนจะหยุดเมื่อออกจากหน้าภารกิจหรือสลับแท็บ ผลที่ผ่านแล้วเก็บในเบราว์เซอร์นี้</p><button class="button primary block" data-action="close-modal">เข้าใจแล้ว ไปเรียนรู้กัน</button>`);
 }
 
+function renderSettings() {
+  const connected = isConnected();
+  const url = getSheetUrl();
+  main.innerHTML = `<div class="page-title"><p class="eyebrow">SETTINGS</p><h1>ตั้งค่าระบบ<span class="brand-dot">.</span></h1><p>เชื่อมต่อ Google Sheets เพื่อเก็บผลการเรียนรู้ไว้ส่วนกลาง</p></div>
+    <section class="settings-section"><div class="settings-card"><div class="settings-header"><span class="settings-icon">${icon('bolt')}</span><div><h2>เชื่อมต่อ Google Sheets</h2><p>ส่งผลการเรียนรู้ไปเก็บใน Google Sheet อัตโนมัติ ใช้ร่วมกับ localStorage ได้</p></div><span class="status-badge ${connected?'connected':'disconnected'}">${connected?'เชื่อมต่อแล้ว':'ยังไม่เชื่อมต่อ'}</span></div>
+    <div class="settings-body"><form id="sheet-form"><label for="sheet-url">Google Apps Script URL</label><input class="text-input" id="sheet-url" name="sheet-url" placeholder="https://script.google.com/macros/s/xxxxx/exec" value="${escape(url)}" autocomplete="off"><p class="form-help">วาง URL จากการ Deploy ของ Google Apps Script</p><p id="sheet-error" class="form-error" role="alert" hidden></p><p id="sheet-success" class="form-success" role="status" hidden></p><div class="settings-actions"><button class="button primary" type="submit" id="connect-btn">ทดสอบและบันทึก</button>${connected?'<button class="button" type="button" data-action="disconnect">ยกเลิกการเชื่อมต่อ</button>':''}</div></form></div></div>
+    <div class="settings-card"><div class="settings-header"><span class="settings-icon">${icon('download')}</span><div><h2>ดึงข้อมูลจาก Google Sheets</h2><p>โหลดผลการเรียนรู้จาก Google Sheet มาแสดงในหน้าผลการเรียนรู้</p></div></div><div class="settings-body"><button class="button" data-action="sync-results" id="sync-btn" ${connected?'':'disabled'}>ดึงข้อมูลตอนนี้</button><p id="sync-status" class="form-help" role="status"></p></div></div>
+    <div class="settings-card"><div class="settings-header"><span class="settings-icon">${icon('book')}</span><div><h2>วิธีตั้งค่า Google Sheets</h2></div></div><div class="settings-body"><ol class="setup-steps"><li>สร้าง Google Sheet ใหม่ หรือเปิด Sheet ที่ต้องการเก็บข้อมูล</li><li>ไปที่ <strong>Extensions → Apps Script</strong></li><li>ลบโค้ดเดิม แล้ววางโค้ดจากไฟล์ <code>google-apps-script.js</code> ในโปรเจกต์</li><li>กด <strong>Deploy → New deployment</strong></li><li>เลือก Type: <strong>Web app</strong></li><li>Execute as: <strong>Me</strong> / Who has access: <strong>Anyone</strong></li><li>Copy URL ที่ได้มาวางในช่องด้านบน แล้วกดทดสอบ</li></ol></div></div></section>`;
+}
+
+function updateStorageStatus() {
+  const el = $('#storage-status');
+  if (!el) return;
+  el.innerHTML = isConnected() ? '<i></i> บันทึกผลใน Google Sheets + อุปกรณ์นี้' : '<i></i> บันทึกผลในอุปกรณ์นี้';
+}
+
 function renderRoute() {
   cancelDrag();pauseTimer();
   if(game)game.selected=null;
   const route=location.hash.slice(1)||'home';
-  currentRoute=['home','learn','history','lab','result'].includes(route)?route:'home';
+  currentRoute=['home','learn','history','lab','result','settings'].includes(route)?route:'home';
   document.querySelectorAll('[data-nav]').forEach(a=>{const active=a.dataset.nav===currentRoute;a.classList.toggle('active',active);if(active)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
-  ({home:renderHome,learn:renderLearn,history:renderHistory,lab:renderLab,result:renderResult})[currentRoute]();
-  document.title=`${({home:'ห้องทดลองวงจรไฟรถยนต์',learn:'คลังความรู้',history:'ผลการเรียนรู้',lab:game?currentLevel().title:'เริ่มเรียนรู้',result:'ภารกิจสำเร็จ'})[currentRoute]} — Auto Light Lab`;
+  ({home:renderHome,learn:renderLearn,history:renderHistory,lab:renderLab,result:renderResult,settings:renderSettings})[currentRoute]();
+  document.title=`${({home:'ห้องทดลองวงจรไฟรถยนต์',learn:'คลังความรู้',history:'ผลการเรียนรู้',lab:game?currentLevel().title:'เริ่มเรียนรู้',result:'ภารกิจสำเร็จ',settings:'ตั้งค่า'})[currentRoute]} — Auto Light Lab`;
   if(currentRoute==='lab'&&game)runTimer();
   window.scrollTo({top:0,behavior:'instant'});
   if(!$('#modal').open)main.focus({preventScroll:true});
+  updateStorageStatus();
 }
 
-document.addEventListener('submit',event=>{
+document.addEventListener('submit',async event=>{
   if(event.target.id==='start-form'){
     event.preventDefault();const name=$('#player-name').value.trim();
     if(!name){$('#name-error').hidden=false;$('#name-error').textContent='ใส่ชื่อเล่นก่อนเริ่มเรียนรู้';$('#player-name').focus();return;}
@@ -252,6 +272,17 @@ document.addEventListener('submit',event=>{
     event.preventDefault();const name=$('#modal-name').value.trim();if(name)start(requestedLevel,name);else $('#modal-name').focus();
   }else if(event.target.id==='wire-form'){
     event.preventDefault();const a=$('#wire-from').value,b=$('#wire-to').value;if(a&&b)connect(a,b);else toast('เลือกขั้วต้นทางและปลายทางให้ครบ');
+  }else if(event.target.id==='sheet-form'){
+    event.preventDefault();
+    const url=$('#sheet-url').value.trim();
+    const errEl=$('#sheet-error'),okEl=$('#sheet-success'),btn=$('#connect-btn');
+    errEl.hidden=true;okEl.hidden=true;
+    if(!url){errEl.textContent='กรุณาใส่ URL';errEl.hidden=false;return;}
+    btn.disabled=true;btn.textContent='กำลังทดสอบ...';
+    const ok=await testConnection(url);
+    btn.disabled=false;btn.textContent='ทดสอบและบันทึก';
+    if(ok){setSheetUrl(url);okEl.textContent='เชื่อมต่อสำเร็จ! บันทึก URL แล้ว';okEl.hidden=false;toast('เชื่อมต่อ Google Sheets สำเร็จ');renderSettings();updateStorageStatus();}
+    else{errEl.textContent='ไม่สามารถเชื่อมต่อได้ ตรวจสอบ URL และการ Deploy อีกครั้ง';errEl.hidden=false;}
   }
 });
 document.addEventListener('click',event=>{
@@ -276,6 +307,26 @@ document.addEventListener('click',event=>{
     if(a==='beam'){game.beam=action.dataset.beam;updateBeam();}
     if(a==='export')exportCSV();
     if(a==='print')window.print();
+    if(a==='disconnect'){setSheetUrl('');toast('ยกเลิกการเชื่อมต่อ Google Sheets แล้ว');renderSettings();updateStorageStatus();}
+    if(a==='sync-results'){
+      const btn=$('#sync-btn'),status=$('#sync-status');
+      if(btn)btn.disabled=true;
+      if(status)status.textContent='กำลังดึงข้อมูล...';
+      fetchResults().then(result=>{
+        if(btn)btn.disabled=false;
+        if(result.ok){
+          let added=0;
+          for(const record of result.data){
+            const existing=store.getResults().find(r=>r.id===record.id);
+            if(!existing&&record.id&&record.player){store.saveResult(record);added++;}
+          }
+          if(status)status.textContent=`ดึงข้อมูลสำเร็จ พบ ${result.data.length} รายการ${added?` (เพิ่มใหม่ ${added} รายการ)`:' (ข้อมูลครบแล้ว)'}`;
+          toast('ดึงข้อมูลจาก Google Sheets สำเร็จ');
+        }else{
+          if(status)status.textContent='ไม่สามารถดึงข้อมูลได้ ตรวจสอบการเชื่อมต่อ';
+        }
+      });
+    }
     return;
   }
   if(!game||game.complete||currentRoute!=='lab')return;
