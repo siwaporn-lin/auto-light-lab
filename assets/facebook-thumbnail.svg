@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">เกมการเรียนรู้ระบบไฟรถยนต์ Auto Light Lab</title>
+  <desc id="desc">โปสเตอร์ประชาสัมพันธ์เกมต่อวงจรไฟรถยนต์ มีระบบ Code และ Google Sheets Database</desc>
+  <defs>
+    <linearGradient id="shade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#061e18" stop-opacity=".98"/><stop offset=".43" stop-color="#0b2a20" stop-opacity=".87"/><stop offset=".69" stop-color="#0b2a20" stop-opacity=".22"/><stop offset="1" stop-color="#0b2a20" stop-opacity=".04"/></linearGradient>
+    <linearGradient id="bottom" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#061e18" stop-opacity="0"/><stop offset="1" stop-color="#061e18" stop-opacity=".8"/></linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <style>
+      @font-face{font-family:NotoThai;src:url('NotoSansThai.ttf') format('truetype');font-weight:100 900}
+      .thai{font-family:NotoThai,'Noto Sans Thai',sans-serif;fill:#fff}
+      .lime{fill:#e9f59b}.muted{fill:#c7d9c9}.tiny{font-family:Arial,sans-serif;fill:#d9edc2;letter-spacing:3px;font-weight:700}
+    </style>
+  </defs>
+  <image x="0" y="0" width="1600" height="900" preserveAspectRatio="xMidYMid slice" xlink:href="poster-bg-auto-light-lab.png"/>
+  <rect width="1600" height="900" fill="url(#shade)"/>
+  <rect width="1600" height="900" fill="url(#bottom)"/>
+  <g transform="translate(94 84)">
+    <rect width="57" height="57" rx="16" fill="#e9f59b"/>
+    <path d="M37 8 16 34h16l-4 23 25-34H37Z" fill="#123c31"/>
+    <text x="76" y="25" class="tiny" font-size="22" fill="#fff">AUTO LIGHT LAB.</text>
+    <text x="76" y="48" class="thai muted" font-size="15" letter-spacing="1">ห้องทดลองวงจรไฟรถยนต์</text>
+  </g>
+  <g transform="translate(100 245)">
+    <rect width="320" height="38" rx="19" fill="#224e3d" stroke="#91ae67" stroke-width="1"/>
+    <circle cx="22" cy="19" r="5" fill="#e9f59b"/>
+    <text x="39" y="26" class="tiny" font-size="14" letter-spacing="2">INTERACTIVE LEARNING GAME</text>
+    <text y="129" class="thai" font-size="72" font-weight="800">ต่อวงจรความคิด</text>
+    <text y="213" class="thai lime" font-size="78" font-weight="850">จุดติดทุกการเรียนรู้</text>
+    <text y="273" class="thai muted" font-size="28" font-weight="500">เกมการเรียนรู้ระบบไฟรถยนต์</text>
+    <text y="323" class="thai muted" font-size="22">จับคู่สัญลักษณ์ • ต่อวงจร • วิเคราะห์จุดขัดข้อง</text>
+  </g>
+  <g transform="translate(101 712)">
+    <rect width="740" height="81" rx="15" fill="#0a2a20" fill-opacity=".84" stroke="#8fae66" stroke-opacity=".55"/>
+    <g transform="translate(25 21)" stroke="#e9f59b" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2 3 20l14 18"/><path d="m38 2 14 18-14 18"/><path d="M29 7 22 33"/></g>
+    <text x="102" y="36" class="tiny" font-size="17" letter-spacing="2">CODE</text>
+    <text x="189" y="36" class="thai lime" font-size="22" font-weight="700">+</text>
+    <g transform="translate(223 20)" stroke="#e9f59b" stroke-width="2" fill="none"><rect width="40" height="40" rx="4"/><path d="M13 0v40M27 0v40M0 13h40M0 27h40"/></g>
+    <text x="284" y="36" class="tiny" font-size="17" letter-spacing="2">GOOGLE SHEETS DATABASE</text>
+    <text x="102" y="61" class="thai muted" font-size="15">ระบบบันทึกผลการเรียนรู้ในอุปกรณ์ของคุณ</text>
+  </g>
+  <g transform="translate(1180 742)">
+    <rect width="302" height="58" rx="29" fill="#e9f59b"/>
+    <text x="151" y="38" text-anchor="middle" class="thai" font-size="21" font-weight="800" fill="#173d30">เริ่มทดลองเล่นเลย →</text>
+  </g>
+  <g transform="translate(1305 155)" opacity=".75" filter="url(#glow)"><circle r="9" fill="#e9f59b"/><circle cx="68" cy="-30" r="5" fill="#e9f59b"/><path d="M8 0h54M68-25v-12" stroke="#e9f59b" stroke-width="2"/></g>
+</svg>
