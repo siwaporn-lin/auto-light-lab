@@ -3,7 +3,7 @@
  * Set the deployed Apps Script URL below after deploying the script.
  */
 
-const APPS_SCRIPT_URL = '';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzBu8zJS3Z90wvIJCiP3YjWnqGi6zWXMv0UriGKVRWF2eHumpDRX7TAAmV-QviLVshiyg/exec';
 
 let sheetUrl = APPS_SCRIPT_URL;
 
